@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unterkörper Training – Einheit 1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    .exercise {
+      margin: 20px auto;
+      max-width: 500px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .timer {
+      font-size: 48px;
+      margin: 20px 0;
+      color: #d32f2f;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: white;
+    }
+    button:disabled {
+      background: #aaa;
+    }
+    .description {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Einheit 1 – Unterkörper</h1>
+  <div class="exercise" id="exerciseBox">
+    <h2 id="exerciseName">Los geht's!</h2>
+    <div class="timer" id="timer">60</div>
+    <button onclick="startWorkout()" id="startBtn">Start</button>
+    <button onclick="togglePause()" id="pauseBtn" disabled>Pausieren</button>
+    <div class="description" id="descriptionText"></div>
+  </div>
+
+  <audio id="beep" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
+
+  <script>
+    const exercises = [
+      {
+        name: "Kurzhantel Kniebeugen",
+        satz: 3, dauer: 60, pause: 60,
+        beschreibung: "Bitte in jede Hand eine 8 kg Hantel. Falls Du 10 oder 12 kg schaffst, auch gerne mehr. Bitte führe die Übung so langsam und kontrolliert wie möglich aus. Am untersten Punkt gerne kurz innehalten (im Kopf bis 3 zählen)."
+      },
+      {
+        name: "Einbeiniges Kurzhantel Beckenheben",
+        satz: 6, dauer: 40, pause: 60,
+        beschreibung: "Schnapp dir einfach die Sofakante oder einen Hocker als Bank. Beine stehen im 90 Grad Winkel, langsam das Becken absenken und 'explosionsartig' nach oben kommen. Oben kurz innehalten und wieder absenken."
+      },
+      {
+        name: "Kurzhantel Bulgarian Split Squat",
+        satz: 6, dauer: 40, pause: 60,
+        beschreibung: "Finde den richtigen Abstand zwischen Bank und Standbein. Po an die vorderste Kante der Bank, Beine ausstrecken. Positioniere einen Fuß auf der Bank, Oberkörper leicht nach vorn, Kraft aus der Verse mobilisieren."
+      },
+      {
+        name: "Donkey Kickback mit Widerstandsband",
+        satz: 6, dauer: 60, pause: 60,
+        beschreibung: ""
+      },
+      {
+        name: "Stehendes Kurzhantel Wadenheben",
+        satz: 3, dauer: 30, pause: 60,
+        beschreibung: ""
+      },
+      {
+        name: "Einbeiniges Eigengewicht Kreuzheben",
+        satz: 6, dauer: 40, pause: 60,
+        beschreibung: ""
+      },
+      {
+        name: "Unterarmstütz",
+        satz: 3, dauer: 60, pause: 60,
+        beschreibung: ""
+      },
+      {
+        name: "Russian Twist",
+        satz: 3, dauer: 60, pause: 60,
+        beschreibung: ""
+      }
+    ];
+
+    let currentExercise = 0;
+    let currentSet = 1;
+    let isPaused = false;
+    let interval, remainingTime;
+    let isInPause = false;
+
+    const timerDisplay = document.getElementById("timer");
+    const exerciseName = document.getElementById("exerciseName");
+    const descriptionText = document.getElementById("descriptionText");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+
+    function startWorkout() {
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      runExercise();
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      pauseBtn.innerText = isPaused ? "Fortsetzen" : "Pausieren";
+    }
+
+    function runExercise() {
+      if (currentExercise >= exercises.length) {
+        exerciseName.innerText = "Training abgeschlossen!";
+        timerDisplay.innerText = "🏁";
+        descriptionText.innerText = "";
+        pauseBtn.disabled = true;
+        return;
+      }
+
+      const ex = exercises[currentExercise];
+      const phase = isInPause ? "Pause" : `Satz ${currentSet} von ${ex.satz}`;
+      exerciseName.innerText = isInPause ? "Pause" : ex.name + " – " + phase;
+      descriptionText.innerText = isInPause ? "" : ex.beschreibung;
+
+      remainingTime = isInPause ? ex.pause : ex.dauer;
+      if (!isInPause && currentSet === 1) playBeeps();
+
+      interval = setInterval(() => {
+        if (!isPaused) {
+          timerDisplay.innerText = remainingTime;
+          if (--remainingTime < 0) {
+            clearInterval(interval);
+            if (!isInPause) {
+              isInPause = true;
+              runExercise();
+            } else {
+              isInPause = false;
+              currentSet++;
+              if (currentSet > ex.satz) {
+                currentExercise++;
+                currentSet = 1;
+              }
+              runExercise();
+            }
+          }
+        }
+      }, 1000);
+    }
+
+    function playBeeps() {
+      const beep = document.getElementById("beep");
+      beep.play();
+      setTimeout(() => beep.play(), 600);
+      setTimeout(() => beep.play(), 1200);
+    }
+  </script>
+</body>
+</html>
