@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Krafttraining Timer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+    }
+
+    p {
+      font-size: 1.2em;
+    }
+
+    img {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      margin: 20px 0;
+      border-radius: 12px;
+    }
+
+    #timer {
+      font-size: 3em;
+      margin: 20px 0;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      font-size: 1.2em;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background-color: #333;
+      color: white;
+      width: 80%;
+      max-width: 300px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    @media (min-width: 600px) {
+      .buttons {
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      button {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Krafttraining – Übung 1</h1>
+  <p>Übung: Kniebeuge – 1 Minute</p>
+  <img src="https://via.placeholder.com/300x200?text=Übung+1" alt="Übung 1">
+
+  <div id="timer">01:00</div>
+
+  <div class="buttons">
+    <button onclick="startTimer()">Start</button>
+    <button onclick="resetTimer()">Reset</button>
+    <button onclick="nextExercise()">Springen</button>
+  </div>
+
+  <audio id="beep" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+  <script>
+    let duration = 60;
+    let current = duration;
+    let timerInterval = null;
+
+    function updateDisplay() {
+      const min = String(Math.floor(current / 60)).padStart(2, '0');
+      const sec = String(current % 60).padStart(2, '0');
+      document.getElementById('timer').textContent = `${min}:${sec}`;
+    }
+
+    function beep(times = 3, interval = 500) {
+      let count = 0;
+      const beepSound = document.getElementById('beep');
+      const beepInterval = setInterval(() => {
+        beepSound.play();
+        count++;
+        if (count >= times) clearInterval(beepInterval);
+      }, interval);
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      timerInterval = setInterval(() => {
+        if (current <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          beep();
+          nextExercise();
+          return;
+        }
+        current--;
+        updateDisplay();
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      current = duration;
+      updateDisplay();
+    }
+
+    function nextExercise() {
+      alert("Nächste Übung! (Demo)");
+      resetTimer();
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
