@@ -1,140 +1,127 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Krafttraining Timer</title>
+  <title>Krafttraining – Startseite</title>
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      background-color: #f5f5f5;
       margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
       padding: 20px;
+      text-align: center;
     }
 
     h1 {
-      font-size: 1.8em;
+      margin: 0;
     }
 
-    p {
-      font-size: 1.2em;
+    .content {
+      padding: 20px;
     }
 
-    img {
-      width: 100%;
-      max-width: 300px;
-      height: auto;
-      margin: 20px 0;
-      border-radius: 12px;
-    }
-
-    #timer {
-      font-size: 3em;
-      margin: 20px 0;
-    }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
       gap: 10px;
-      align-items: center;
+      margin-bottom: 30px;
     }
 
-    button {
-      font-size: 1.2em;
-      padding: 12px 24px;
-      border: none;
+    .day {
+      background-color: white;
       border-radius: 8px;
-      background-color: #333;
-      color: white;
-      width: 80%;
-      max-width: 300px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.9em;
       cursor: pointer;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
 
-    button:hover {
-      background-color: #555;
+    .day:hover {
+      background-color: #e0e0e0;
     }
 
-    @media (min-width: 600px) {
-      .buttons {
-        flex-direction: row;
-        justify-content: center;
-        gap: 20px;
-      }
+    .trainingsliste {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
 
-      button {
-        width: auto;
-      }
+    .trainingseinheit {
+      padding: 12px;
+      margin: 10px 0;
+      background-color: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .trainingseinheit:hover {
+      background-color: #eee;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
   </style>
 </head>
 <body>
 
-  <h1>Krafttraining – Übung 1</h1>
-  <p>Übung: Kniebeuge – 1 Minute</p>
-  <img src="https://via.placeholder.com/300x200?text=Übung+1" alt="Übung 1">
+  <header>
+    <h1>Mein Trainingsplan</h1>
+  </header>
 
-  <div id="timer">01:00</div>
+  <div class="content">
 
-  <div class="buttons">
-    <button onclick="startTimer()">Start</button>
-    <button onclick="resetTimer()">Reset</button>
-    <button onclick="nextExercise()">Springen</button>
+    <h2>Nächste 2 Wochen</h2>
+    <div class="calendar" id="calendar"></div>
+
+    <h2>Trainingsauswahl</h2>
+    <div class="trainingsliste">
+      <div class="trainingseinheit"><a href="krafttraining_timer.html">Training 1: Beine & Core</a></div>
+      <div class="trainingseinheit"><a href="#">Training 2: Oberkörper</a></div>
+      <div class="trainingseinheit"><a href="#">Training 3: Ganzkörper</a></div>
+    </div>
+
   </div>
 
-  <audio id="beep" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
-
   <script>
-    let duration = 60;
-    let current = duration;
-    let timerInterval = null;
+    // Generiere die nächsten 14 Tage im Kalender
+    const calendar = document.getElementById("calendar");
+    const trainingLinks = [
+      "krafttraining_timer.html",
+      "#",
+      "#"
+    ];
+    const trainingNamen = [
+      "Beine & Core",
+      "Oberkörper",
+      "Ganzkörper"
+    ];
 
-    function updateDisplay() {
-      const min = String(Math.floor(current / 60)).padStart(2, '0');
-      const sec = String(current % 60).padStart(2, '0');
-      document.getElementById('timer').textContent = `${min}:${sec}`;
+    const heute = new Date();
+    for (let i = 0; i < 14; i++) {
+      const datum = new Date();
+      datum.setDate(heute.getDate() + i);
+      const tag = datum.toLocaleDateString("de-DE", { weekday: 'short', day: 'numeric', month: 'short' });
+      const trainingIndex = i % 3;
+      const tagDiv = document.createElement("div");
+      tagDiv.className = "day";
+      tagDiv.innerHTML = `<strong>${tag}</strong><br><a href="${trainingLinks[trainingIndex]}">${trainingNamen[trainingIndex]}</a>`;
+      calendar.appendChild(tagDiv);
     }
-
-    function beep(times = 3, interval = 500) {
-      let count = 0;
-      const beepSound = document.getElementById('beep');
-      const beepInterval = setInterval(() => {
-        beepSound.play();
-        count++;
-        if (count >= times) clearInterval(beepInterval);
-      }, interval);
-    }
-
-    function startTimer() {
-      if (timerInterval) return;
-      timerInterval = setInterval(() => {
-        if (current <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          beep();
-          nextExercise();
-          return;
-        }
-        current--;
-        updateDisplay();
-      }, 1000);
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      current = duration;
-      updateDisplay();
-    }
-
-    function nextExercise() {
-      alert("Nächste Übung! (Demo)");
-      resetTimer();
-    }
-
-    updateDisplay();
   </script>
 
 </body>
